@@ -5,10 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.jkalter.discord</groupId>
-    <artifactId>DBot</artifactId>
+    <artifactId>AttendanceBot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-
-
+    <name>Attendance Bot</name>
+    <description>A discord event attendance administration bot</description>
+    <url>https://github.com/atcmasta/AttendanceBot</url>
+    <developers>
+        <developer>
+            <name>atcmasta</name>
+            <email>atcmasta@users.noreply.github.com</email>
+            <organizationUrl>https://github.com/atcmasta</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:https://github.com/atcmasta/AttendanceBot.git</connection>
+        <developerConnection>scm:git:git@github.com:atcmasta/AttendanceBot.git</developerConnection>
+        <url>https://github.com/atcmasta/AttendanceBot</url>
+        <tag>HEAD</tag>
+    </scm>
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -29,7 +43,29 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>3.8</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository> <!-- This repo fixes issues with transitive dependencies -->
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -48,7 +84,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>nl.jkalter.discord.AttendanceBot</mainClass>
+                                    <mainClass>nl.jkalter.discord.attendance.AttendanceBot</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -75,15 +111,36 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
