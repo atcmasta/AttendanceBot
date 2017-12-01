@@ -34,8 +34,7 @@ public class AttendanceService {
 
             CsvToBean<UserAttendance> csvToBean = new CsvToBean<>();
             final List<UserAttendance> userAttendance = csvToBean.parse(beanStrategy, reader);
-
-            userAttendance.forEach(attendances::add);
+            attendances.addAll(userAttendance);
         }
 
         return attendances;
@@ -46,7 +45,7 @@ public class AttendanceService {
 
         if (!listExists(list)) {
             LOGGER.debug("Creating attendance ({})", list);
-            result = writeAttendance(list, new ArrayList<IAttendance>());
+            result = writeAttendance(list, new ArrayList<>());
         }
 
         return result;
@@ -56,10 +55,10 @@ public class AttendanceService {
         boolean result = false;
         if (listExists(list)) {
             final Collection<IAttendance> iAttendances = readAttendance(list);
-            final Optional<IAttendance> exisingAttendance = iAttendances.stream().filter(iAttendance -> iAttendance.getUserId() == userId).findFirst();
+            final Optional<IAttendance> existingAttendance = iAttendances.stream().filter(iAttendance -> iAttendance.getUserId() == userId).findFirst();
 
-            if (exisingAttendance.isPresent()) {
-                IAttendance attendee = exisingAttendance.get();
+            if (existingAttendance.isPresent()) {
+                IAttendance attendee = existingAttendance.get();
                 attendee.setAttendance(attendance);
             } else {
                 iAttendances.add(new UserAttendance(userId, attendance));
@@ -70,11 +69,11 @@ public class AttendanceService {
     }
 
     public static boolean clearAttendance(String list) throws IOException {
-        return writeAttendance(list, new ArrayList<IAttendance>());
+        return writeAttendance(list, new ArrayList<>());
     }
 
     public static boolean writeAttendance(String list, Collection<IAttendance> attendances) throws IOException {
-        boolean result = false;
+        boolean result;
         LOGGER.debug("Writing attendance ({})", list);
         if (LOGGER.isTraceEnabled()) {
             attendances.forEach( att -> LOGGER.trace("Attendance for %s is %s", att.getUserId(), att.getAttendance()));
@@ -127,7 +126,7 @@ public class AttendanceService {
         return new File(getAttendanceListPath(list).toString());
     }
 
-    public static Path getAttendanceListPath(String list) {
+    private static Path getAttendanceListPath(String list) {
         return Paths.get(ATTENDANCE_DIR, list + ".csv");
     }
 

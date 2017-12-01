@@ -37,9 +37,8 @@ public class AttendanceBot {
     }
 
     private static IDiscordClient buildClient() throws IOException {
-        IDiscordClient client = null;
         LOGGER.debug("Building client.");
-        client = new ClientBuilder().withToken(TokenFile.getToken()).build();
+        IDiscordClient client = new ClientBuilder().withToken(TokenFile.getToken()).build();
         LOGGER.trace("Built client.");
         return client;
     }
@@ -52,9 +51,9 @@ public class AttendanceBot {
     }
 
     private static void executePreFlight() throws IOException {
-        LOGGER.debug("Excuting preflight.");
+        LOGGER.debug("Executing pre flight.");
         PreFlight.execute();
-        LOGGER.trace("Excuted preflight.");
+        LOGGER.trace("Executed pre flight.");
     }
 
     private static void loginClient(IDiscordClient client) {

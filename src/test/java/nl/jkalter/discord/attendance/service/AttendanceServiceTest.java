@@ -1,9 +1,5 @@
 package nl.jkalter.discord.attendance.service;
 
-import nl.jkalter.discord.attendance.service.Attendance;
-import nl.jkalter.discord.attendance.service.AttendanceService;
-import nl.jkalter.discord.attendance.service.IAttendance;
-import nl.jkalter.discord.attendance.service.UserAttendance;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +16,7 @@ public class AttendanceServiceTest {
         final String listName = "writeEmptyAttendance";
         Assert.assertFalse(String.format("Expecting %s to not exist prior to the test", listName), AttendanceService.listExists(listName));
 
-        final Collection<IAttendance> attendance = new ArrayList<IAttendance>();
+        final Collection<IAttendance> attendance = new ArrayList<>();
         AttendanceService.writeAttendance(listName, attendance);
 
         Assert.assertTrue(String.format("Expecting %s to exist after the test.", listName), AttendanceService.listExists(listName));
@@ -32,7 +28,7 @@ public class AttendanceServiceTest {
         final String listName = "writeReadAttendance";
         Assert.assertFalse(String.format("Expecting %s to not exist prior to the test", listName), AttendanceService.removeAttendance(listName));
 
-        final Collection<IAttendance> beforeAttendance = new ArrayList<IAttendance>();
+        final Collection<IAttendance> beforeAttendance = new ArrayList<>();
         beforeAttendance.add(new UserAttendance(ThreadLocalRandom.current().nextLong(), Attendance.UNKNOWN));
         beforeAttendance.add(new UserAttendance(ThreadLocalRandom.current().nextLong(), Attendance.YES));
         beforeAttendance.add(new UserAttendance(ThreadLocalRandom.current().nextLong(), Attendance.NO));
@@ -54,14 +50,14 @@ public class AttendanceServiceTest {
         Assert.assertTrue(String.format("Expecting %s to exist after creation", listName), AttendanceService.listExists(listName));
         Assert.assertFalse(String.format("Expecting to be able to create a new list (%s) only once", listName), AttendanceService.createAttendance(listName));
 
-        Assert.assertTrue(String.format("Expecting to be able to remove the created list", listName), AttendanceService.removeAttendance(listName));
+        Assert.assertTrue(String.format("Expecting to be able to remove the created list %s", listName), AttendanceService.removeAttendance(listName));
     }
 
     @Test
     public void setAttendance() throws IOException {
         final String listName = "setAttendance";
-        final long userId1 = 1l;
-        final long userId2 = 2l;
+        final long userId1 = 1L;
+        final long userId2 = 2L;
 
         Assert.assertTrue(String.format("Expecting to be able to create a new list %s", listName), AttendanceService.createAttendance(listName));
         Assert.assertTrue(String.format("Expecting list %s to exist after creation", listName), AttendanceService.listExists(listName));
@@ -78,7 +74,7 @@ public class AttendanceServiceTest {
         Optional<IAttendance> any2 = attendance.stream().filter(iAttendance -> iAttendance.getUserId() == userId2).findAny();
         Assert.assertTrue(String.format("Expecting to find user with id %s", userId1), any2.isPresent());
         Assert.assertEquals(String.format("Expecting to find user with id %s to have the same attendance", userId2), Attendance.YES, any2.get().getAttendance());
-        Assert.assertTrue(String.format("Expecting to be able overide the attendance for user %s to %s in list %s.", userId1, Attendance.VACATION, listName), AttendanceService.setAttendance(userId1, listName, Attendance.VACATION));
+        Assert.assertTrue(String.format("Expecting to be able override the attendance for user %s to %s in list %s.", userId1, Attendance.VACATION, listName), AttendanceService.setAttendance(userId1, listName, Attendance.VACATION));
         attendance = AttendanceService.readAttendance(listName);
         any1 = attendance.stream().filter(iAttendance -> iAttendance.getUserId() == userId1).findAny();
         Assert.assertTrue(String.format("Expecting to find user with id %s", userId1), any1.isPresent());
@@ -105,7 +101,7 @@ public class AttendanceServiceTest {
     public void listAttendanceLists() throws Exception {
         final String listName = "listAttendanceLists";
 
-        // determine inital situation
+        // determine initial situation
         final Collection<String> initial = AttendanceService.listAttendanceLists();
         Assert.assertTrue("Test needs to be able to create a new attendance list", AttendanceService.createAttendance(listName));
         final Collection<String> increased = AttendanceService.listAttendanceLists();

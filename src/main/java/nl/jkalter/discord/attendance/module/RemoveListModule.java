@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.ArrayList;
@@ -37,8 +36,7 @@ public class RemoveListModule {
             long authorId = author.getLongID();
 
             LOGGER.debug("Trying to remove list(s) for {} ({})", authorName, authorId);
-            final List<IRole> rolesForAuthor = event.getGuild().getRolesForUser(author);
-            if (command.isAuthorizedRole(rolesForAuthor)) {
+            if (command.isAuthorizedRole(event)) {
                 messageContent = command.removeCommand(messageContent);
 
                 final String[] lists = messageContent.split(" ");

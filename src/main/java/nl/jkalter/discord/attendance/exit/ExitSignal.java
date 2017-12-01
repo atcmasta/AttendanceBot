@@ -2,7 +2,7 @@ package nl.jkalter.discord.attendance.exit;
 
 public class ExitSignal {
 
-    boolean exit = false;
+    private boolean exit = false;
 
     public boolean isExit() {
         return exit;

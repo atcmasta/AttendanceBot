@@ -3,16 +3,18 @@ package nl.jkalter.discord.attendance.module.support;
 import nl.jkalter.discord.attendance.configuration.BotProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IRole;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(Command.class);
-    protected static final String PREFIX = "!";
-    protected final CommandName commandName;
-    protected final String postfix;
+    private static final String PREFIX = "!";
+    private final CommandName commandName;
+    private final String postfix;
 
     public Command(CommandName commandName) {
         this(commandName, " ");
@@ -35,17 +37,21 @@ public class Command {
         return messageContent.startsWith(PREFIX + commandName + postfix);
     }
 
-    public boolean isAuthorizedRole(List<IRole> rolesForAuthor) {
+    public boolean isAuthorizedRole(MessageReceivedEvent event) {
         boolean authorized = false;
+        final List<IRole> rolesForAuthor = getRolesForUser(event);
 
         final String authorizedRole = getRoleForCommand();
         if (authorizedRole !=  null) {
-            LOGGER.info("Found the authorized role {} for the {} command", authorizedRole, this);
+            LOGGER.info("Found the authorized role '{}' for the '{}' command", authorizedRole, this);
             final Optional<IRole> first = rolesForAuthor.stream().filter(iRole -> iRole.getName().equalsIgnoreCase(authorizedRole)).findFirst();
             authorized = first.isPresent();
-            LOGGER.info("Found the authorized role {} for the {} command", authorizedRole, this);
         }
         return authorized;
+    }
+
+    private static List<IRole> getRolesForUser(MessageReceivedEvent event) {
+        return event.getGuild() != null ? event.getGuild().getRolesForUser(event.getAuthor()) : Collections.emptyList();
     }
 
     private String getRoleForCommand() {

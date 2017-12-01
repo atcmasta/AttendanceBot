@@ -21,34 +21,24 @@ public class PreFlight {
         createFile(CONFIG_DIR + File.separatorChar + BotProperties.BOT_PROPERTIES);
     }
 
-    private static boolean createDirectory(String path) {
-        boolean result = false;
+    private static void createDirectory(String path) {
         File file = new File(path);
         if (file.isFile()) {
             LOGGER.info(String.format("File %s prevents creation of a required directory", file.getPath()));
-            result = false;
         } else if (file.exists() && file.isDirectory()) {
             LOGGER.debug(String.format("Directory %s already exists, skipping.", file.getPath()));
-            result = true;
         } else if (file.mkdir()) {
             LOGGER.info(String.format("Created directory %s", file.getPath()));
-            result = true;
         } else {
             LOGGER.warn(String.format("Could not create directory %s", file.getPath()));
-            result = false;
         }
-
-        return result;
     }
 
-    private static boolean createFile(String fileName) throws IOException {
-        boolean result = false;
+    private static void createFile(String fileName) throws IOException {
         File f = new File(fileName);
-        if (f.exists()) {
-            result = f.isFile();
-        } else {
-            result = f.createNewFile();
+        if (!f.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            f.createNewFile();
         }
-        return result;
     }
 }

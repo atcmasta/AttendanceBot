@@ -34,6 +34,7 @@ public class BotProperties {
         return botProps;
     }
 
+    @SuppressWarnings("unused")
     public static void storeProperties(Properties properties) throws IOException {
         properties.store(new FileWriter(new File(Paths.get(PreFlight.CONFIG_DIR, BOT_PROPERTIES).toString())), null);
     }

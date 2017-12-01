@@ -10,10 +10,9 @@ import java.nio.file.Paths;
 
 public class TokenFile {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenFile.class);
-    public static final String TOKEN_FILE = "token.txt";
+    private static final String TOKEN_FILE = "token.txt";
 
     private TokenFile() { /* hide constructor */ }
-
 
     /**
      * Retrieves the token using the default token file location {@link TokenFile#TOKEN_FILE}
@@ -30,7 +29,7 @@ public class TokenFile {
      * @return the Discord API token
      * @throws IOException if the token file can not be read
      */
-    public static String getToken(String tokenFile) throws IOException  {
+    private static String getToken(String tokenFile) throws IOException  {
         String token = null;
         File f = new File(TOKEN_FILE);
         if(!f.exists() && !f.isDirectory()) {

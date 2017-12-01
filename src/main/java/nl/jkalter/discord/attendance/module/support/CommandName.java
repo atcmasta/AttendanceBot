@@ -3,9 +3,9 @@ package nl.jkalter.discord.attendance.module.support;
 public enum CommandName {
     ATTEND("attend"), AVATAR("avatar"), CLEAR("clear"), CREATE("create"), LIST("list"), LISTS("lists"), REMOVE("remove"), EXIT("exit");
 
-    private String command;
+    private final String command;
 
-    private CommandName(String command) {
+    CommandName(String command) {
         this.command = command;
     }
 

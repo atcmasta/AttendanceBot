@@ -1,7 +1,7 @@
 package nl.jkalter.discord.attendance.service;
 
 public class UserAttendance implements IAttendance {
-    protected static final String[] MAPPING = new String[] { "UserId", "Attendance"};
+    static final String[] MAPPING = new String[] { "UserId", "Attendance"};
 
     private long userId;
     private Attendance attendance;
@@ -19,6 +19,7 @@ public class UserAttendance implements IAttendance {
         return userId;
     }
 
+    @SuppressWarnings("unused")
     public void setUserId(long userId) {
         this.userId = userId;
     }

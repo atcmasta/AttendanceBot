@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
@@ -40,9 +39,7 @@ public class ClearListModule {
                 long authorId = author.getLongID();
 
                 LOGGER.debug("Trying to clear attendance for {} ({})", authorName, authorId);
-                final List<IRole> rolesForAuthor = event.getGuild().getRolesForUser(author);
-                if (command.isAuthorizedRole(rolesForAuthor)) {
-
+                if (command.isAuthorizedRole(event)) {
                     final String[] lists = messageContent.split(" ");
                     final List<String> clearedLists = new ArrayList<>();
 
@@ -62,7 +59,7 @@ public class ClearListModule {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error(String.format("Exception occured handling message (%s)", event.getMessage().getContent()), e);
+            LOGGER.error(String.format("Exception occurred handling message (%s)", event.getMessage().getContent()), e);
             event.getAuthor().getOrCreatePMChannel().sendMessage("Something went horribly wrong, maybe try again later or inform someone.");
         }
     }

@@ -7,11 +7,13 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.Image;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class AvatarModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttendModule.class);
@@ -48,8 +50,7 @@ public class AvatarModule {
 
             if (Calendar.getInstance().after(nextUpdate)) {
                 LOGGER.debug("Trying to set avatar for {} ({})", authorName, authorId);
-                final List<IRole> rolesForAuthor = event.getGuild().getRolesForUser(author);
-                if (command.isAuthorizedRole(rolesForAuthor)) {
+                if (command.isAuthorizedRole(event)) {
                     final String[] lists = messageContent.split(" ");
                     if (lists.length > 0) {
                         String url = lists[0];
@@ -81,7 +82,7 @@ public class AvatarModule {
         nextUpdate.add(Calendar.MINUTE, 1);
     }
 
-    protected final String determineType(String url) {
+    final String determineType(String url) {
         String type = null;
 
         final Optional<String> match = EXTENSION_TYPE_MAPPING.keySet().stream().filter(url::endsWith).findFirst();

@@ -8,10 +8,7 @@ import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
-
-import java.util.List;
 
 public class ExitHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExitHandler.class);
@@ -34,8 +31,7 @@ public class ExitHandler {
             String authorName = author.getName();
             long authorId = author.getLongID();
 
-            final List<IRole> rolesForAuthor = event.getGuild().getRolesForUser(author);
-            if (command.isAuthorizedRole(rolesForAuthor)) {
+            if (command.isAuthorizedRole(event)) {
                 LOGGER.info("Exit commandName received from %s (%s), shutting down.", authorName, authorId);
                 for (IChannel channel : event.getClient().getChannels(false)) {
                     channel.sendMessage(String.format("Exit received from %s", authorName));

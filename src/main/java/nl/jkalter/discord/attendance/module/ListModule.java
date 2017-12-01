@@ -8,11 +8,9 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ListModule {
@@ -36,8 +34,7 @@ public class ListModule {
             long authorId = author.getLongID();
 
             LOGGER.debug("Trying to show attendance for {} ({})", authorName, authorId);
-            final List<IRole> rolesForAuthor = event.getGuild().getRolesForUser(author);
-            if (command.isAuthorizedRole(rolesForAuthor)) {
+            if (command.isAuthorizedRole(event)) {
                 final Collection<String> lists = AttendanceService.listAttendanceLists();
 
                 if (lists.isEmpty()) {
