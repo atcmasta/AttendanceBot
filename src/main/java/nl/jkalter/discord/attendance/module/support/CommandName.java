@@ -1,7 +1,15 @@
 package nl.jkalter.discord.attendance.module.support;
 
 public enum CommandName {
-    ATTEND("attend"), AVATAR("avatar"), CLEAR("clear"), CREATE("create"), LIST("list"), LISTS("lists"), REMOVE("remove"), EXIT("exit");
+    ATTEND("attend"),
+    AVATAR("avatar"),
+    CLEAR("clear"),
+    CREATE("create"),
+    HELP("help"),
+    LIST("list"),
+    LISTS("lists"),
+    REMOVE("remove"),
+    EXIT("exit");
 
     private final String command;
 

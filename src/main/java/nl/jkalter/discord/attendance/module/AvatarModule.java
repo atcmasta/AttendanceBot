@@ -2,6 +2,7 @@ package nl.jkalter.discord.attendance.module;
 
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
+import nl.jkalter.discord.attendance.module.support.ICommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class AvatarModule {
+public class AvatarModule implements ICommandHelpModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttendModule.class);
     private static final Map<String, String> EXTENSION_TYPE_MAPPING = getMapping();
 
@@ -95,5 +96,15 @@ public class AvatarModule {
 
     private boolean isUrl(String url) {
         return url.startsWith("http://") || url.startsWith("https://");
+    }
+
+    @Override
+    public ICommand getCommand() {
+        return command;
+    }
+
+    @Override
+    public String getHelp() {
+        return String.format("%s %s (rate limited)", getCommand().getFullCommandName(),"http(s)://example.com/image.(png|jpg|jpeg|webp|svg)");
     }
 }

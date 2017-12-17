@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class Command {
+public class Command implements ICommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(Command.class);
     private static final String PREFIX = "!";
     private final CommandName commandName;
@@ -58,7 +58,7 @@ public class Command {
         return BotProperties.loadProperties().getProperty(getCommandName().toString());
     }
 
-    private CommandName getCommandName() {
+    public CommandName getCommandName() {
         return commandName;
     }
 

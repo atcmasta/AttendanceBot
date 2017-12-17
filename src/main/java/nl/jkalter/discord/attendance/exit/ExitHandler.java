@@ -1,7 +1,9 @@
 package nl.jkalter.discord.attendance.exit;
 
+import nl.jkalter.discord.attendance.module.ICommandModule;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
+import nl.jkalter.discord.attendance.module.support.ICommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -10,7 +12,7 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
-public class ExitHandler {
+public class ExitHandler implements ICommandModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExitHandler.class);
 
     private final Command command;
@@ -48,4 +50,8 @@ public class ExitHandler {
         }
     }
 
+    @Override
+    public ICommand getCommand() {
+        return command;
+    }
 }

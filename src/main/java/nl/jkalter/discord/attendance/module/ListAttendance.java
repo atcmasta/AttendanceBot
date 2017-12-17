@@ -2,6 +2,7 @@ package nl.jkalter.discord.attendance.module;
 
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
+import nl.jkalter.discord.attendance.module.support.ICommand;
 import nl.jkalter.discord.attendance.service.Attendance;
 import nl.jkalter.discord.attendance.service.AttendanceService;
 import nl.jkalter.discord.attendance.service.IAttendance;
@@ -14,14 +15,15 @@ import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ListAttendance {
+public class ListAttendance implements ICommandHelpModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateListModule.class);
     private static final int LIST_NAME_LENGTH = 16;
-    private static final int OPTION_MAX_LENGTH = 32;
 
     private final Command command;
 
@@ -59,7 +61,7 @@ public class ListAttendance {
 
                     Attendance attendance = null;
                     if (arguments.length > 1) {
-                        String option = arguments[1].substring(0, Math.min(arguments[1].length(), OPTION_MAX_LENGTH)).toUpperCase();
+                        String option = arguments[1].substring(0, Math.min(arguments[1].length(), Attendance.MAX_ATTENDANCE_LENGTH)).toUpperCase();
                         attendance = parseAttendance(option);
                     }
 
@@ -71,7 +73,7 @@ public class ListAttendance {
                         attendanceStream = attendees.stream();
                     }
 
-                    respond(event, list, authorName, attendanceStream);
+                    respond(event, list, authorName, attendanceStream, attendance);
                 } else {
                     LOGGER.info("User {} ({}) is not authorized to use the {} command.", authorName, authorId, command);
                 }
@@ -92,7 +94,7 @@ public class ListAttendance {
         return attendance;
     }
 
-    private void respond(MessageReceivedEvent event, String list, String authorName, Stream<IAttendance> attendees) {
+    private void respond(MessageReceivedEvent event, String list, String authorName, Stream<IAttendance> attendees, Attendance attendanceFilter) {
         if (attendees == null) {
             event.getChannel().sendMessage(String.format("I could not find that list for you %s ;)", authorName));
         } else {
@@ -100,10 +102,10 @@ public class ListAttendance {
             attendees.forEach(attendance::add);
 
             StringBuilder sb = new StringBuilder();
-            if (attendance.isEmpty()) {
-                sb.append(String.format("Attendance list: %s (empty)%n", list));
+            if (attendanceFilter != null) {
+                sb.append(String.format("Attendance list for %s: %s (%s)%n", attendanceFilter.name().toLowerCase(), list, attendance.isEmpty() ? "empty" : attendance.size()));
             } else {
-                sb.append(String.format("Attendance list: %s (%s)%n", list, attendance.size()));
+                sb.append(String.format("Attendance list: %s (%s)%n", list, attendance.isEmpty() ? "empty" : attendance.size()));
             }
             for (IAttendance att : attendance) {
                 sb.append(String.format("%s %s%n", att.getAttendance(), event.getClient().getUserByID(att.getUserId()).getName()));
@@ -112,4 +114,17 @@ public class ListAttendance {
         }
     }
 
+    @Override
+    public ICommand getCommand() {
+        return command;
+    }
+
+
+    @Override
+    public String getHelp() {
+        return String.format("%s %s %s", getCommand().getFullCommandName(),
+                AttendanceService.listAttendanceLists().stream().collect(Collectors.joining(", ", "(", ")")),
+                Arrays.stream(Attendance.values()).map(value -> value.name().toLowerCase())
+                        .collect(Collectors.joining(", ", "(", ")")));
+    }
 }

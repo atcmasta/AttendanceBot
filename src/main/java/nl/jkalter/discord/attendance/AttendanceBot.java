@@ -46,7 +46,8 @@ public class AttendanceBot {
     private static void registerModules(IDiscordClient client) {
         LOGGER.debug("Registering modules.");
         EventDispatcher dispatcher = client.getDispatcher(); // Gets the EventDispatcher instance for this client instance
-        getEnabledModules().forEach(dispatcher::registerListener);
+        Collection<Object> modules = getEnabledModules();
+        modules.forEach(dispatcher::registerListener);
         LOGGER.trace("Registered modules.");
     }
 
@@ -90,6 +91,7 @@ public class AttendanceBot {
         enabledModules.add(new ListAttendance());
         enabledModules.add(new ListModule());
         enabledModules.add(new AvatarModule());
+        enabledModules.add(new HelpModule(enabledModules));
         enabledModules.add(new ExitHandler(exitSignal));
 
         return enabledModules;

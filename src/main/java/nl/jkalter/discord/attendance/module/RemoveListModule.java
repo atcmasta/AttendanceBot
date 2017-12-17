@@ -2,6 +2,7 @@ package nl.jkalter.discord.attendance.module;
 
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
+import nl.jkalter.discord.attendance.module.support.ICommand;
 import nl.jkalter.discord.attendance.service.AttendanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RemoveListModule {
+public class RemoveListModule implements ICommandHelpModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveListModule.class);
     private static final int LIST_NAME_LENGTH = 16;
     private static final String LIST_REGEX = "[a-zA-Z0-9]+([a-zA-Z0-9-_]*[a-zA-Z0-9])*";
@@ -68,5 +69,16 @@ public class RemoveListModule {
         } else {
             event.getChannel().sendMessage(String.format("I removed %s lists (%s) for you %s.", removed.size(), removed.stream().collect(Collectors.joining(", ")), authorName));
         }
+    }
+
+    @Override
+    public ICommand getCommand() {
+        return command;
+    }
+
+    @Override
+    public String getHelp() {
+        return String.format("%s %s", getCommand().getFullCommandName(),
+                AttendanceService.listAttendanceLists().stream().collect(Collectors.joining(", ", "(", ")")));
     }
 }

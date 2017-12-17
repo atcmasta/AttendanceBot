@@ -2,6 +2,7 @@ package nl.jkalter.discord.attendance.module;
 
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
+import nl.jkalter.discord.attendance.module.support.ICommand;
 import nl.jkalter.discord.attendance.service.AttendanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import sx.blah.discord.handle.obj.IUser;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class ListModule {
+public class ListModule implements ICommandModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateListModule.class);
 
     private final Command command;
@@ -48,5 +49,10 @@ public class ListModule {
                 LOGGER.info("User {} ({}) is not authorized to use the {} command.", authorName, authorId, command);
             }
         }
+    }
+
+    @Override
+    public ICommand getCommand() {
+        return command;
     }
 }

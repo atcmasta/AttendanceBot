@@ -2,6 +2,7 @@ package nl.jkalter.discord.attendance.module;
 
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
+import nl.jkalter.discord.attendance.module.support.ICommand;
 import nl.jkalter.discord.attendance.service.Attendance;
 import nl.jkalter.discord.attendance.service.AttendanceService;
 import org.slf4j.Logger;
@@ -12,13 +13,14 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
-public class AttendModule {
+public class AttendModule implements ICommandHelpModule {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttendModule.class);
     private static final int LIST_NAME_LENGTH = 16;
     private static final String LIST_REGEX = "[a-zA-Z0-9]+([a-zA-Z0-9-_]*[a-zA-Z0-9])*";
-    private static final int ENUM_LENGTH = 32;
 
     private final Command command;
 
@@ -60,7 +62,7 @@ public class AttendModule {
                     }
 
                     if (arguments.length > 1) {
-                        String attendanceInput = arguments[1].substring(0, Math.min(arguments[1].length(), ENUM_LENGTH)).toUpperCase();
+                        String attendanceInput = arguments[1].substring(0, Math.min(arguments[1].length(), Attendance.MAX_ATTENDANCE_LENGTH)).toUpperCase();
                         attendance = parseAttendance(attendanceInput);
                     }
 
@@ -93,4 +95,15 @@ public class AttendModule {
         return attendance;
     }
 
+    @Override
+    public ICommand getCommand() {
+        return command;
+    }
+
+    @Override
+    public String getHelp() {
+        return String.format("%s %s %s", getCommand().getFullCommandName(), AttendanceService.listAttendanceLists().stream().collect(Collectors.joining(", ", "(", ")")),
+                Arrays.stream(Attendance.values()).map(value -> value.name().toLowerCase())
+                        .collect(Collectors.joining(", ", "(", ")")));
+    }
 }
