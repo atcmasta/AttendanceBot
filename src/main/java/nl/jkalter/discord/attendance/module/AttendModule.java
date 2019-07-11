@@ -1,5 +1,6 @@
 package nl.jkalter.discord.attendance.module;
 
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -9,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,19 +30,17 @@ public class AttendModule implements ICommandHelpModule {
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
         try {
-            IMessage message = event.getMessage();
-            String messageContent = message.getContent().trim().toLowerCase();
+            final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-            if (command.isMyCommand(messageContent)) {
-                IUser author = message.getAuthor();
-                String authorName = author.getName();
-                long authorId = author.getLongID();
+            if (command.isMyCommand(wrappedEvent)) {
+
+                final String authorName = wrappedEvent.getAuthorName();
+                final long authorId = wrappedEvent.getAuthorId();
 
                 LOGGER.debug("Trying to change attendance for {} ({})", authorName, authorId);
 
-                if (command.isAuthorizedRole(event)) {
-
-                    messageContent = command.removeCommand(messageContent);
+                if (command.isAuthorizedRole(wrappedEvent)) {
+                    String messageContent = command.removeCommand(wrappedEvent);
 
                     final String[] arguments = messageContent.split(" ");
 
@@ -67,7 +64,7 @@ public class AttendModule implements ICommandHelpModule {
                     }
 
                     if (listName == null && attendance == null) {
-                        event.getChannel().sendMessage(String.format("Try %s listname (%s).", command.getFullCommandName(), Attendance.list()));
+                        event.getChannel().sendMessage(String.format("Try %s list name (%s).", command.getFullCommandName(), Attendance.list()));
                     } else if (listName == null) {
                         event.getChannel().sendMessage(String.format("Sorry, I am unable to find that list %s.", authorName));
                     } else if (attendance == null) {

@@ -1,5 +1,6 @@
 package nl.jkalter.discord.attendance.module;
 
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -7,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -27,18 +26,18 @@ public class HelpModule implements ICommandHelpModule {
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
-        IMessage message = event.getMessage();
-        String messageContent = message.getContent().trim().toLowerCase();
+        final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-        if (command.isMyCommand(messageContent)) {
-            IUser author = message.getAuthor();
-            String authorName = author.getName();
-            long authorId = author.getLongID();
+        if (command.isMyCommand(wrappedEvent)) {
+
+            final String authorName = wrappedEvent.getAuthorName();
+            final long authorId = wrappedEvent.getAuthorId();
+
 
             LOGGER.debug("Trying to help {} ({})", authorName, authorId);
 
-            if (command.isAuthorizedRole(event)) {
-                messageContent = command.removeCommand(messageContent);
+            if (command.isAuthorizedRole(wrappedEvent)) {
+                String messageContent = command.removeCommand(wrappedEvent);
                 final String[] arguments = messageContent.split(" ");
 
                 if (arguments.length <= 1 && arguments[0].equals("")) {
