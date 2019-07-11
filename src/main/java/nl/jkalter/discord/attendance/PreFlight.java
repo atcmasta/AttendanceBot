@@ -24,13 +24,13 @@ public class PreFlight {
     private static void createDirectory(String path) {
         File file = new File(path);
         if (file.isFile()) {
-            LOGGER.info(String.format("File %s prevents creation of a required directory", file.getPath()));
+            LOGGER.info("File {} prevents creation of a required directory", file.getPath());
         } else if (file.exists() && file.isDirectory()) {
-            LOGGER.debug(String.format("Directory %s already exists, skipping.", file.getPath()));
+            LOGGER.debug("Directory {} already exists, skipping.", file.getPath());
         } else if (file.mkdir()) {
-            LOGGER.info(String.format("Created directory %s", file.getPath()));
+            LOGGER.info("Created directory {}", file.getPath());
         } else {
-            LOGGER.warn(String.format("Could not create directory %s", file.getPath()));
+            LOGGER.warn("Could not create directory {}", file.getPath());
         }
     }
 
