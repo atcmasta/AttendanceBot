@@ -76,7 +76,7 @@ public class AttendanceService {
         boolean result;
         LOGGER.debug("Writing attendance ({})", list);
         if (LOGGER.isTraceEnabled()) {
-            attendances.forEach( att -> LOGGER.trace("Attendance for %s is %s", att.getUserId(), att.getAttendance()));
+            attendances.forEach( att -> LOGGER.trace("Attendance for {} is {}", att.getUserId(), att.getAttendance()));
         }
 
         FileWriter writer = new FileWriter(getAttendanceListPath(list).toString());

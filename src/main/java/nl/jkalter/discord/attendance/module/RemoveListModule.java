@@ -1,5 +1,6 @@
 package nl.jkalter.discord.attendance.module;
 
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -8,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +27,16 @@ public class RemoveListModule implements ICommandHelpModule {
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
-        IMessage message = event.getMessage();
-        String messageContent = message.getContent().trim().toLowerCase();
+        final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-        if (command.isMyCommand(messageContent)) {
-            IUser author = message.getAuthor();
-            String authorName = author.getName();
-            long authorId = author.getLongID();
+        if (command.isMyCommand(wrappedEvent)) {
+
+            final String authorName = wrappedEvent.getAuthorName();
+            final long authorId = wrappedEvent.getAuthorId();
 
             LOGGER.debug("Trying to remove list(s) for {} ({})", authorName, authorId);
-            if (command.isAuthorizedRole(event)) {
-                messageContent = command.removeCommand(messageContent);
+            if (command.isAuthorizedRole(wrappedEvent)) {
+                String messageContent = command.removeCommand(wrappedEvent);
 
                 final String[] lists = messageContent.split(" ");
                 final List<String> removedLists = new ArrayList<>();
@@ -65,9 +63,9 @@ public class RemoveListModule implements ICommandHelpModule {
         if (removed.isEmpty()) {
             event.getChannel().sendMessage(String.format("I did not remove any lists %s ;)", authorName));
         } else if (removed.size() == 1) {
-            event.getChannel().sendMessage(String.format("I removed the %s list for you %s.", removed.stream().collect(Collectors.joining(", ")), authorName));
+            event.getChannel().sendMessage(String.format("I removed the %s list for you %s.", String.join(", ", removed), authorName));
         } else {
-            event.getChannel().sendMessage(String.format("I removed %s lists (%s) for you %s.", removed.size(), removed.stream().collect(Collectors.joining(", ")), authorName));
+            event.getChannel().sendMessage(String.format("I removed %s lists (%s) for you %s.", removed.size(), String.join(", ", removed), authorName));
         }
     }
 

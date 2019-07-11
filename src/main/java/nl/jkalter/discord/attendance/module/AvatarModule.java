@@ -1,5 +1,6 @@
 package nl.jkalter.discord.attendance.module;
 
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -7,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.Image;
 
 import java.util.Calendar;
@@ -40,18 +39,18 @@ public class AvatarModule implements ICommandHelpModule {
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
-        IMessage message = event.getMessage();
-        String messageContent = message.getContent().trim().toLowerCase();
+        final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-        if (command.isMyCommand(messageContent)) {
-            messageContent = command.removeCommand(messageContent);
-            IUser author = message.getAuthor();
-            String authorName = author.getName();
-            long authorId = author.getLongID();
+        if (command.isMyCommand(wrappedEvent)) {
+
+            final String authorName = wrappedEvent.getAuthorName();
+            final long authorId = wrappedEvent.getAuthorId();
 
             if (Calendar.getInstance().after(nextUpdate)) {
                 LOGGER.debug("Trying to set avatar for {} ({})", authorName, authorId);
-                if (command.isAuthorizedRole(event)) {
+
+                if (command.isAuthorizedRole(wrappedEvent)) {
+                    String messageContent = command.removeCommand(wrappedEvent);
                     final String[] lists = messageContent.split(" ");
                     if (lists.length > 0) {
                         String url = lists[0];

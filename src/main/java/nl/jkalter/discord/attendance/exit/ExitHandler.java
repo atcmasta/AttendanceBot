@@ -1,6 +1,7 @@
 package nl.jkalter.discord.attendance.exit;
 
 import nl.jkalter.discord.attendance.module.ICommandModule;
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -9,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class ExitHandler implements ICommandModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExitHandler.class);
@@ -25,16 +24,15 @@ public class ExitHandler implements ICommandModule {
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
-        final IMessage message = event.getMessage();
-        String messageContent = message.getContent().trim().toLowerCase();
+        final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-        if (command.isMyCommand(messageContent)) {
-            final IUser author = message.getAuthor();
-            String authorName = author.getName();
-            long authorId = author.getLongID();
+        if (command.isMyCommand(wrappedEvent)) {
 
-            if (command.isAuthorizedRole(event)) {
-                LOGGER.info("Exit commandName received from %s (%s), shutting down.", authorName, authorId);
+            final String authorName = wrappedEvent.getAuthorName();
+            final long authorId = wrappedEvent.getAuthorId();
+
+            if (command.isAuthorizedRole(wrappedEvent)) {
+                LOGGER.info("Exit commandName received from {} ({}), shutting down.", authorName, authorId);
                 for (IChannel channel : event.getClient().getChannels(false)) {
                     channel.sendMessage(String.format("Exit received from %s", authorName));
                 }

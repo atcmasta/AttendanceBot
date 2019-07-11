@@ -1,5 +1,6 @@
 package nl.jkalter.discord.attendance.module;
 
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -8,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,17 +29,16 @@ public class ClearListModule implements ICommandHelpModule {
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
         try {
-            IMessage message = event.getMessage();
-            String messageContent = message.getContent().trim().toLowerCase();
+            final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-            if (command.isMyCommand(messageContent)) {
-                messageContent = command.removeCommand(messageContent);
-                IUser author = message.getAuthor();
-                String authorName = author.getName();
-                long authorId = author.getLongID();
+            if (command.isMyCommand(wrappedEvent)) {
+
+                final String authorName = wrappedEvent.getAuthorName();
+                final long authorId = wrappedEvent.getAuthorId();
 
                 LOGGER.debug("Trying to clear attendance for {} ({})", authorName, authorId);
-                if (command.isAuthorizedRole(event)) {
+                if (command.isAuthorizedRole(wrappedEvent)) {
+                    String messageContent = command.removeCommand(wrappedEvent);
                     final String[] lists = messageContent.split(" ");
                     final List<String> clearedLists = new ArrayList<>();
 
@@ -69,9 +67,9 @@ public class ClearListModule implements ICommandHelpModule {
         if (cleared.isEmpty()) {
             event.getChannel().sendMessage(String.format("I did not clear any lists for you %s ;)", authorName));
         } else if (cleared.size() == 1) {
-            event.getChannel().sendMessage(String.format("I cleared the %s list for you %s.", cleared.stream().collect(Collectors.joining(", ")), authorName));
+            event.getChannel().sendMessage(String.format("I cleared the %s list for you %s.", String.join(", ", cleared), authorName));
         } else {
-            event.getChannel().sendMessage(String.format("I cleared %s lists (%s) for you %s.", cleared.size(), cleared.stream().collect(Collectors.joining(", ")), authorName));
+            event.getChannel().sendMessage(String.format("I cleared %s lists (%s) for you %s.", cleared.size(), String.join(", ", cleared), authorName));
         }
     }
 

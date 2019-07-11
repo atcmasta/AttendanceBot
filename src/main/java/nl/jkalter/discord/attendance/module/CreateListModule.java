@@ -1,5 +1,6 @@
 package nl.jkalter.discord.attendance.module;
 
+import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
@@ -8,13 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CreateListModule implements ICommandHelpModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateListModule.class);
@@ -30,17 +28,16 @@ public class CreateListModule implements ICommandHelpModule {
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
         try {
-            IMessage message = event.getMessage();
-            String messageContent = message.getContent().trim().toLowerCase();
+            final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
 
-            if (command.isMyCommand(messageContent)) {
-                IUser author = message.getAuthor();
-                String authorName = author.getName();
-                long authorId = author.getLongID();
+            if (command.isMyCommand(wrappedEvent)) {
+
+                final String authorName = wrappedEvent.getAuthorName();
+                final long authorId = wrappedEvent.getAuthorId();
 
                 LOGGER.debug("Trying to add list(s) for {} ({})", authorName, authorId);
-                if (command.isAuthorizedRole(event)) {
-                    messageContent = command.removeCommand(messageContent);
+                if (command.isAuthorizedRole(wrappedEvent)) {
+                    String messageContent = command.removeCommand(wrappedEvent);
 
                     final String[] lists = messageContent.split(" ");
                     final List<String> addedLists = new ArrayList<>();
@@ -70,9 +67,9 @@ public class CreateListModule implements ICommandHelpModule {
         if (added.isEmpty()) {
             event.getChannel().sendMessage(String.format("I did not create any lists for you %s ;)", authorName));
         } else if (added.size() == 1) {
-            event.getChannel().sendMessage(String.format("I created the %s list for you %s.", added.stream().collect(Collectors.joining(", ")), authorName));
+            event.getChannel().sendMessage(String.format("I created the %s list for you %s.", String.join(", ", added), authorName));
         } else {
-            event.getChannel().sendMessage(String.format("I created %s lists (%s) for you %s.", added.size(), added.stream().collect(Collectors.joining(", ")), authorName));
+            event.getChannel().sendMessage(String.format("I created %s lists (%s) for you %s.", added.size(), String.join(", ", added), authorName));
         }
     }
 
