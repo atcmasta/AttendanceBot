@@ -28,7 +28,6 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
 
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <sonar.jacoco.reportPath>${project.build.directory}/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
         <sonar.projectKey>atcmasta_AttendanceBot</sonar.projectKey>
     </properties>
