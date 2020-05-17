@@ -32,6 +32,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>atcmasta</sonar.organization>
         <sonar.projectKey>atcmasta_AttendanceBot</sonar.projectKey>
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
