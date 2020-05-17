@@ -10,7 +10,7 @@ addons:
     organization: "atcmasta"
 
 script:
-  - mvn clean verify sonar:sonar
+  - mvn clean install sonar:sonar
 
 cache:
   directories:
