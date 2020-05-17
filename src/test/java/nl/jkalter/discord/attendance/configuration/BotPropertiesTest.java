@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 public class BotPropertiesTest {
     @Test
-    public void testDefaultRoles() throws Exception {
+    public void testDefaultRoles() {
         Properties properties = BotProperties.loadProperties();
 
         for (CommandName command : CommandName.values()) {

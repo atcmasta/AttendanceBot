@@ -34,10 +34,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.austinv11</groupId>
-            <artifactId>Discord4J</artifactId>
-            <version>49a6f26</version>
-            <classifier>shaded</classifier>
+            <groupId>com.discord4j</groupId>
+            <artifactId>discord4j-core</artifactId>
+            <version>3.0.14</version>
         </dependency>
         <!-- Allows you to log events from Discord4J -->
         <dependency>
