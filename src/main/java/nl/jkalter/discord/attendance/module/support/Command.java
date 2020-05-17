@@ -1,11 +1,10 @@
 package nl.jkalter.discord.attendance.module.support;
 
 import nl.jkalter.discord.attendance.configuration.BotProperties;
-import nl.jkalter.discord.attendance.module.event.IGuildUserMessageReceivedEvent;
-import nl.jkalter.discord.attendance.module.event.ISanitizedMessageReceivedEvent;
+import nl.jkalter.discord.facade.IMessageCreateEventFacade;
+import nl.jkalter.discord.facade.role.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.handle.obj.IRole;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +25,7 @@ public class Command implements ICommand {
         this.postfix = postfix;
     }
 
-    public String removeCommand(ISanitizedMessageReceivedEvent event) {
+    public String removeCommand(IMessageCreateEventFacade event) {
         return removeCommand(event.getSanitizedMessageContent());
     }
 
@@ -38,7 +37,7 @@ public class Command implements ICommand {
         return PREFIX + commandName;
     }
 
-    public boolean isMyCommand(ISanitizedMessageReceivedEvent event) {
+    public boolean isMyCommand(IMessageCreateEventFacade event) {
         return isMyCommand(event.getSanitizedMessageContent());
     }
 
@@ -46,21 +45,23 @@ public class Command implements ICommand {
         return messageContent.startsWith(PREFIX + commandName + postfix);
     }
 
-    public boolean isAuthorizedRole(IGuildUserMessageReceivedEvent event) {
+    public boolean isAuthorizedRole(IMessageCreateEventFacade event) {
         boolean authorized = false;
-        final List<IRole> rolesForAuthor = getRolesForUser(event);
+        final List<Role> rolesForAuthor = getRolesForUser(event);
 
         final String authorizedRole = getRoleForCommand();
         if (authorizedRole !=  null) {
             LOGGER.info("Found the authorized role '{}' for the '{}' command", authorizedRole, this);
-            final Optional<IRole> first = rolesForAuthor.stream().filter(iRole -> iRole.getName().equalsIgnoreCase(authorizedRole)).findFirst();
+            final Optional<Role> first = rolesForAuthor.stream()
+                    .filter(role -> role.getName().equalsIgnoreCase(authorizedRole))
+                    .findFirst();
             authorized = first.isPresent();
         }
         return authorized;
     }
 
-    private static List<IRole> getRolesForUser(IGuildUserMessageReceivedEvent event) {
-        return event.getGuild() != null ? event.getGuild().getRolesForUser(event.getAuthor()) : Collections.emptyList();
+    private static List<Role> getRolesForUser(IMessageCreateEventFacade event) {
+        return event.getAuthor() != null ? event.getAuthor().getRoles() : Collections.emptyList();
     }
 
     private String getRoleForCommand() {

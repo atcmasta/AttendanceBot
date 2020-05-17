@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -94,26 +95,36 @@ public class AttendanceService {
 
         File folder = new File(ATTENDANCE_DIR);
         File[] listOfFiles = folder.listFiles();
-        for (File file : listOfFiles) {
-            String fileName = file.getName();
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                String fileName = file.getName();
 
-            if (fileName.endsWith(".csv")) {
-                fileName = fileName.substring(0, fileName.indexOf(".csv"));
-                lists.add(fileName);
+                if (fileName.endsWith(".csv")) {
+                    fileName = fileName.substring(0, fileName.indexOf(".csv"));
+                    lists.add(fileName);
+                }
             }
+        } else {
+            LOGGER.warn("Directory of attendance files {} cannot be listed.", folder.getAbsoluteFile());
         }
 
         return lists;
     }
 
-
-    public static boolean removeAttendance(String list) {
+public static boolean removeAttendance(String list) {
         LOGGER.debug("Removing attendance ({})", list);
 
         boolean result = false;
         final File listFile = getListFile(list);
         if (listFile.exists()) {
-            result = listFile.delete();
+            final Path path = Paths.get(listFile.getAbsolutePath());
+            try {
+                Files.delete(path);
+                result = true;
+            } catch (IOException e) {
+                LOGGER.warn("Error removing list file {}", path.toString(), e);
+                result = false;
+            }
         }
         return result;
     }

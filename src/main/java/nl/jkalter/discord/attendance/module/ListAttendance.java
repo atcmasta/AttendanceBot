@@ -1,16 +1,17 @@
 package nl.jkalter.discord.attendance.module;
 
-import nl.jkalter.discord.attendance.module.event.WrappedMessageReceivedEvent;
 import nl.jkalter.discord.attendance.module.support.Command;
 import nl.jkalter.discord.attendance.module.support.CommandName;
 import nl.jkalter.discord.attendance.module.support.ICommand;
 import nl.jkalter.discord.attendance.service.Attendance;
 import nl.jkalter.discord.attendance.service.AttendanceService;
 import nl.jkalter.discord.attendance.service.IAttendance;
+import nl.jkalter.discord.facade.IEventDispatcherFacade;
+import nl.jkalter.discord.facade.IMessageCreateEventFacade;
+import nl.jkalter.discord.facade.IMessageCreateEventListener;
+import nl.jkalter.discord.facade.author.IAuthor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ListAttendance implements ICommandHelpModule {
+public class ListAttendance implements ICommandHelpModule, IMessageCreateEventListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListAttendance.class);
     private static final int LIST_NAME_LENGTH = 16;
 
@@ -30,52 +31,64 @@ public class ListAttendance implements ICommandHelpModule {
         command = new Command(CommandName.LIST);
     }
 
-    @EventSubscriber
-    public void onMessageReceivedEvent(MessageReceivedEvent event) {
+    @Override
+    public void enable(IEventDispatcherFacade eventDispatcherFacade) {
+        eventDispatcherFacade.onMessageCreateEvent(this);
+    }
+
+    public void onMessageReceivedEvent(IMessageCreateEventFacade event) {
+        final IAuthor author = event.getAuthor();
+
         try {
-            final WrappedMessageReceivedEvent wrappedEvent = new WrappedMessageReceivedEvent(event);
-
-            if (command.isMyCommand(wrappedEvent)) {
-                LOGGER.debug("Trying to list attendance for {} ({})", wrappedEvent.getAuthorName(), wrappedEvent.getAuthorId());
-                if (command.isAuthorizedRole(wrappedEvent)) {
-                    String messageContent = command.removeCommand(wrappedEvent);
-
-                    final String[] arguments = messageContent.split(" ");
-
-                    String sanitizedListName = null;
-                    if (arguments.length > 0) {
-                        String listName = arguments[0];
-                        sanitizedListName = getSanitizedInput(listName, LIST_NAME_LENGTH);
-                    }
-
-                    Collection<IAttendance> attendees = getAttendeesForList(sanitizedListName);
-
-                    final Attendance attendance;
-                    if (arguments.length > 1) {
-                        String attendanceType = arguments[1];
-                        String sanitizedAttendanceType = getSanitizedInput(attendanceType, Attendance.MAX_ATTENDANCE_LENGTH).toUpperCase();
-                        attendance = parseAttendance(sanitizedAttendanceType);
-                    } else {
-                        attendance = null;
-                    }
-
-                    Stream<IAttendance> attendanceStream = getFilteredAttendanceStream(attendees, attendance);
-
-                    respond(event, sanitizedListName, wrappedEvent.getAuthorName(), attendanceStream, attendance);
-                } else {
-                    LOGGER.info("User {} ({}) is not authorized to use the {} command.", wrappedEvent.getAuthorName(), wrappedEvent.getAuthorId(), command);
-                }
+            if (!command.isMyCommand(event)) {
+                return;
             }
+            LOGGER.debug("Trying to list attendance for {} ({})",
+                    author.getAuthorName(),
+                    author.getAuthorId());
+
+            if (command.isAuthorizedRole(event)) {
+                String messageContent = command.removeCommand(event);
+
+                final String[] arguments = messageContent.split(" ");
+
+                String sanitizedListName = null;
+                if (arguments.length > 0) {
+                    String listName = arguments[0];
+                    sanitizedListName = getSanitizedInput(listName, LIST_NAME_LENGTH);
+                }
+
+                Collection<IAttendance> attendees = getAttendeesForList(sanitizedListName);
+
+                final Attendance attendance;
+                if (arguments.length > 1) {
+                    String attendanceType = arguments[1];
+                    String sanitizedAttendanceType = getSanitizedInput(attendanceType, Attendance.MAX_ATTENDANCE_LENGTH).toUpperCase();
+                    attendance = parseAttendance(sanitizedAttendanceType);
+                } else {
+                    attendance = null;
+                }
+
+                Stream<IAttendance> attendanceStream = getFilteredAttendanceStream(attendees, attendance);
+
+                respond(event, sanitizedListName, author.getAuthorName(), attendanceStream, attendance);
+            } else {
+                LOGGER.info("User {} ({}) is not authorized to use the {} command.",
+                        author.getAuthorName(),
+                        author.getAuthorId(), command);
+            }
+
         } catch (IOException e) {
             LOGGER.error(String.format("Exception occurred handling message (%s)", event.getMessage().getContent()), e);
-            event.getAuthor().getOrCreatePMChannel().sendMessage("Something went horribly wrong, maybe try again later or inform someone.");
+            author.sendPrivateMessage("Something went horribly wrong, maybe try again later or inform someone.");
         }
     }
 
     /**
      * Provides a stream of all attendees that have the supplied attendance, if no attendance is supplied all
      * attendees will be in the stream. Returns null for an empty collection of attendees
-     * @param attendees a collection of attendees of type IAttendance
+     *
+     * @param attendees  a collection of attendees of type IAttendance
      * @param attendance the type of attendance we are interested is
      * @return a steam of attendees that have the supplies attendance, or all supplies attendees
      * if there is no attendance supplied.
@@ -122,9 +135,9 @@ public class ListAttendance implements ICommandHelpModule {
         return attendance;
     }
 
-    private void respond(MessageReceivedEvent event, String list, String authorName, Stream<IAttendance> attendees, Attendance attendanceFilter) {
+    private void respond(IMessageCreateEventFacade event, String list, String authorName, Stream<IAttendance> attendees, Attendance attendanceFilter) {
         if (attendees == null) {
-            event.getChannel().sendMessage(String.format("I could not find that list for you %s ;)", authorName));
+            event.sendMessage(String.format("I could not find that list for you %s ;)", authorName));
         } else {
             List<IAttendance> attendance = new ArrayList<>();
             attendees.forEach(attendance::add);
@@ -135,10 +148,12 @@ public class ListAttendance implements ICommandHelpModule {
             } else {
                 sb.append(String.format("Attendance list: %s (%s)%n", list, attendance.isEmpty() ? "empty" : attendance.size()));
             }
+
+            final long serverId = event.getServer().getServerId();
             for (IAttendance att : attendance) {
-                sb.append(String.format("%s %s%n", att.getAttendance(), event.getClient().getUserByID(att.getUserId()).getName()));
+                sb.append(String.format("%s %s%n", att.getAttendance(), event.getClient().getMember(serverId, att.getUserId()).getDisplayName()));
             }
-            event.getChannel().sendMessage(sb.toString());
+            event.sendMessage(sb.toString());
         }
     }
 
