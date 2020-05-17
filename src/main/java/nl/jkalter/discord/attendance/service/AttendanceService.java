@@ -80,7 +80,13 @@ public class AttendanceService {
             attendances.forEach( att -> LOGGER.trace("Attendance for {} is {}", att.getUserId(), att.getAttendance()));
         }
 
-        FileWriter writer = new FileWriter(getAttendanceListPath(list).toString());
+        final File attendanceFile = new File(getAttendanceListPath(list).toAbsolutePath().toString());
+
+        if (attendanceFile.getParentFile().mkdirs()) {
+            LOGGER.info("Created directories needed to store file {}.", attendanceFile.getAbsolutePath());
+        }
+
+        FileWriter writer = new FileWriter(attendanceFile);
 
         try (CSVWriter csvWriter = new CSVWriter(writer, SEPARATOR, QUOTE)) {
             List<String[]> data = toStringArray(attendances);
