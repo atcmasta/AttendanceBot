@@ -34,7 +34,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <sonar.organization>atcmasta</sonar.organization>
-        <sonar.projectKey>atcmasta_AttendanceBot</sonar.projectKey>
 
         <skipTests>false</skipTests>
 
