@@ -32,6 +32,11 @@ public class RemoveListModule implements ICommandHelpModule, IMessageCreateEvent
     }
 
     public void onMessageReceivedEvent(IMessageCreateEventFacade event) {
+
+        if (!command.isMyCommand(event)) {
+            return;
+        }
+
         IAuthor author = event.getAuthor();
         final String authorName = author.getAuthorName();
         final long authorId = author.getAuthorId();
