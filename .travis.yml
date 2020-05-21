@@ -4,7 +4,7 @@ os: linux
 dist: xenial
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 addons:
   sonarcloud:
