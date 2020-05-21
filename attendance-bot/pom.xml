@@ -72,6 +72,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+            </plugin>
             <!-- To create an executable fat JAR when using mvn package -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
