@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.jkalter.discord</groupId>
-    <artifactId>AttendanceBot</artifactId>
+    <groupId>nl.jkalter.discord.attendance</groupId>
+    <artifactId>project</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <name>Attendance Bot</name>
+
+    <packaging>pom</packaging>
+
+    <name>Attendance Bot Project</name>
     <description>A discord event attendance administration bot</description>
     <url>https://github.com/atcmasta/AttendanceBot</url>
     <developers>
@@ -15,6 +19,10 @@
             <organizationUrl>https://github.com/atcmasta</organizationUrl>
         </developer>
     </developers>
+    <modules>
+        <module>discord-api-facade</module>
+        <module>attendance-bot</module>
+    </modules>
     <scm>
         <connection>scm:git:https://github.com/atcmasta/AttendanceBot.git</connection>
         <developerConnection>scm:git:git@github.com:atcmasta/AttendanceBot.git</developerConnection>
@@ -22,52 +30,47 @@
         <tag>HEAD</tag>
     </scm>
     <properties>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-        <maven.compiler.testSource>1.8</maven.compiler.testSource>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <sonar.organization>atcmasta</sonar.organization>
 
         <skipTests>false</skipTests>
-
-        <sonar.language>java</sonar.language>
-        <sonar.organization>atcmasta</sonar.organization>
-        <sonar.projectKey>atcmasta_AttendanceBot</sonar.projectKey>
-        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.0.0-M1</maven-javadoc-plugin.version>
+        <junit.version>4.12</junit.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.discord4j</groupId>
-            <artifactId>discord4j-core</artifactId>
-            <version>3.0.14</version>
-        </dependency>
-        <!-- Allows you to log events from Discord4J -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>3.8</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>nl.jkalter.discord.attendance</groupId>
+                <artifactId>discord-api-facade</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-classic.version}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -81,112 +84,79 @@
     </repositories>
 
     <build>
-        <plugins>
-            <!-- To create an executable fat JAR when using mvn package -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>nl.jkalter.discord.attendance.AttendanceBot</mainClass>
-                                </transformer>
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <!--
-                                        Exclude files that sign a jar
-                                        (one or multiple of the dependencies).
-                                        One may not repack a signed jar without
-                                        this, or you will get a
-                                        SecurityException at program start.
-                                    -->
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/*.INF</exclude> <!-- This one may not be required -->
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.sonarsource.scanner.maven</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>${sonar-maven-plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <configuration>
-                    <skip>${skipTests}</skip>
-                    <append>true</append>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>jacoco-prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jacoco-report</id>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                    <configuration>
+                        <skip>${skipTests}</skip>
+                        <append>true</append>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>jacoco-prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jacoco-report</id>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
+
     <profiles>
         <profile>
             <id>release</id>
             <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadoc</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-source-plugin</artifactId>
+                            <version>${maven-source-plugin.version}</version>
+                            <executions>
+                                <execution>
+                                    <id>attach-sources</id>
+                                    <goals>
+                                        <goal>jar</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <version>${maven-javadoc-plugin.version}</version>
+                            <executions>
+                                <execution>
+                                    <id>attach-javadoc</id>
+                                    <goals>
+                                        <goal>jar</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
             </build>
         </profile>
     </profiles>

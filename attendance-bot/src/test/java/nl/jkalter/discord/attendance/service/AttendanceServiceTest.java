@@ -1,5 +1,9 @@
 package nl.jkalter.discord.attendance.service;
 
+import nl.jkalter.discord.attendance.service.Attendance;
+import nl.jkalter.discord.attendance.service.AttendanceService;
+import nl.jkalter.discord.attendance.service.IAttendance;
+import nl.jkalter.discord.attendance.service.UserAttendance;
 import org.junit.Assert;
 import org.junit.Test;
 
