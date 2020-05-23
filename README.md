@@ -1,11 +1,6 @@
 # AttendanceBot
 A discord attendance bot based on Discord4J (https://github.com/Discord4J/Discord4J) which can be used to register and create an overview of attendance for certain events.
 
-## Building
-In order to build the bot for yourself you will need Maven. Run the following Maven command to build the .jar file:
-```
-mvn clean install
-```
 ## Running
 In order to run the Bot you will need to have the Java 8 Runtime installed. The first time you run the bot it will
 create a token.txt which will need a discord token in order to be able to connect.
@@ -48,3 +43,23 @@ The discord group that is allowed to use a specific command is defined by defaul
    ```exit=moderator```
 
 Changes will be picked up immediately.
+
+## Building
+In order to build the bot for yourself you will need Maven. Run the following Maven command to build the .jar file:
+```
+mvn clean install
+```
+
+## Releasing
+In order to release you will need GPG available on the command line and a GPG key available to sign the artifacts. 
+
+See [Working with pgp signatures](https://central.sonatype.org/pages/working-with-pgp-signatures.html) for more 
+information.
+
+In order to perform a release, execute the following commands in order:
+
+```mvn release:prepare -P release```
+
+followed by
+
+```mvn release:perform -P release```
