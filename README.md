@@ -1,5 +1,5 @@
 # AttendanceBot
-A discord attendance bot which can be used to register and create an overview of attendance for certain events.
+A discord attendance bot based on Discord4J (https://github.com/Discord4J/Discord4J) which can be used to register and create an overview of attendance for certain events.
 
 ## Building
 In order to build the bot for yourself you will need Maven. Run the following Maven command to build the .jar file:
@@ -30,3 +30,21 @@ https://discordapp.com/oauth2/authorize?&client_id=CLIENT_ID&scope=bot&permissio
 `CLIENT_ID` should be replaced with the ID for the application you have just created. (App details -> Client ID)
 
 The log displays the correct URL with `CLIENT_ID` for your bot, once the token for the bot has been set and the bot has been started.
+
+### Commanding your bot
+In order to get a list of commands, just type !help in a channel or private chat. This will list the available 
+commands. For some commands further information is available bij adding the specific command to the !help command.
+
+For instance: ```!help list``` 
+
+### Changing command permission
+The discord group that is allowed to use a specific command is defined by default in the
+ [default.properties](attendance-bot/src/main/resources/default.properties). Every default can be overridden 
+ individually by specifying the command in a bot.properties file in the config/ directory relative to the directory 
+ where the bot is being ran.
+ 
+ An example config/bot.properties file might look like this:
+ 
+   ```exit=moderator```
+
+Changes will be picked up immediately.
