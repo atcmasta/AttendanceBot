@@ -7,7 +7,7 @@ create a token.txt which will need a discord token in order to be able to connec
 
 Example:
 ```
-java -jar AttendanceBot-1.0.0-SNAPSHOT.jar
+java -jar AttendanceBot-1.1.0.jar
 ```
 
 ### Getting a token
