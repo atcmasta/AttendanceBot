@@ -56,10 +56,6 @@ In order to release you will need GPG available on the command line and a GPG ke
 See [Working with pgp signatures](https://central.sonatype.org/pages/working-with-pgp-signatures.html) for more 
 information.
 
-In order to perform a release, execute the following commands in order:
+In order to perform a release, execute the following command:
 
-```mvn release:prepare -P release```
-
-followed by
-
-```mvn release:perform -P release```
+```mvn release:prepare release:perform -P release```
