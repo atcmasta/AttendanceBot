@@ -21,7 +21,7 @@
 
         <sonar.language>java</sonar.language>
 
-        <discord4j-core.version>3.0.14</discord4j-core.version>
+        <discord4j-core.version>3.0.16</discord4j-core.version>
         <reactor-core.version>3.2.16.RELEASE</reactor-core.version>
     </properties>
 

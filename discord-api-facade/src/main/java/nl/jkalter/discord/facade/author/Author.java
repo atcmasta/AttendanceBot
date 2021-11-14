@@ -1,5 +1,6 @@
 package nl.jkalter.discord.facade.author;
 
+import discord4j.core.object.VoiceState;
 import discord4j.core.object.entity.Member;
 import nl.jkalter.discord.facade.role.Role;
 
@@ -22,6 +23,11 @@ public class Author implements IAuthor {
     @Override
     public void sendPrivateMessage(String message) {
         Objects.requireNonNull(member.getPrivateChannel().block()).createMessage(message);
+    }
+
+    @Override
+    public VoiceState getVoiceState() {
+        return member.getVoiceState().block();
     }
 
     @Override

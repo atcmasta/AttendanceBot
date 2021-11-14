@@ -6,9 +6,14 @@ public enum CommandName {
     CLEAR("clear"),
     CREATE("create"),
     HELP("help"),
+    LEAVE("leave"),
     LIST("list"),
     LISTS("lists"),
+    PLAY("play"),
+    QUEUE("queue"),
+    NEXT("next"),
     REMOVE("remove"),
+    PAUSE("pause"),
     EXIT("exit");
 
     private final String command;

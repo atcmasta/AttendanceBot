@@ -3,15 +3,9 @@ package nl.jkalter.discord.attendance;
 import nl.jkalter.discord.attendance.exit.ExitHandler;
 import nl.jkalter.discord.attendance.exit.ExitSignal;
 import nl.jkalter.discord.attendance.files.TokenFile;
-import nl.jkalter.discord.attendance.module.AttendModule;
-import nl.jkalter.discord.attendance.module.AvatarModule;
-import nl.jkalter.discord.attendance.module.ClearListModule;
-import nl.jkalter.discord.attendance.module.CreateListModule;
-import nl.jkalter.discord.attendance.module.HelpModule;
-import nl.jkalter.discord.attendance.module.IModule;
-import nl.jkalter.discord.attendance.module.ListAttendance;
-import nl.jkalter.discord.attendance.module.ListModule;
-import nl.jkalter.discord.attendance.module.RemoveListModule;
+import nl.jkalter.discord.attendance.module.*;
+import nl.jkalter.discord.attendance.module.music.*;
+import nl.jkalter.discord.attendance.module.music.manager.AudioModuleManager;
 import nl.jkalter.discord.facade.DiscordClientBuilderFacade;
 import nl.jkalter.discord.facade.IDiscordClientFacade;
 import nl.jkalter.discord.facade.IEventDispatcherFacade;
@@ -25,11 +19,14 @@ import java.util.LinkedList;
 public class AttendanceBot {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttendanceBot.class);
     private static final ExitSignal exitSignal = new ExitSignal();
+    private static AudioModuleManager manager;
 
     public static void main(String[] args) throws InterruptedException, IOException {
         IDiscordClientFacade client = null;
         try {
             executePreFlight();
+
+            manager = new AudioModuleManager();
 
             client = buildClient();
             registerModules(client);
@@ -69,7 +66,7 @@ public class AttendanceBot {
         LOGGER.info("Logging in.");
         client.login();
         LOGGER.info("Please use the following URL to add your bot to a server " +
-                "https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions=0",
+                        "https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions=0",
                 client.getApplicationClientID());
         LOGGER.info("Logged in.");
     }
@@ -98,8 +95,13 @@ public class AttendanceBot {
         enabledModules.add(new CreateListModule());
         enabledModules.add(new RemoveListModule());
         enabledModules.add(new ClearListModule());
+        enabledModules.add(new LeaveVoiceModule(manager));
         enabledModules.add(new ListAttendance());
         enabledModules.add(new ListModule());
+        enabledModules.add(new NextMusicModule(manager));
+        enabledModules.add(new PlayMusicModule(manager));
+        enabledModules.add(new PauseMusicModule(manager));
+        enabledModules.add(new MusicQueueModule(manager));
         enabledModules.add(new AvatarModule());
         enabledModules.add(new HelpModule(enabledModules));
         enabledModules.add(new ExitHandler(exitSignal));

@@ -56,6 +56,8 @@ public class Command implements ICommand {
                     .filter(role -> role.getName().equalsIgnoreCase(authorizedRole))
                     .findFirst();
             authorized = first.isPresent();
+        } else {
+            LOGGER.info("Did not find an authorized role for the '{}' command", this);
         }
         return authorized;
     }
